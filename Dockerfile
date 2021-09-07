@@ -10,6 +10,8 @@ RUN npm install
 
 COPY . /usr/src/app
 
-EXPOSE 3000
+EXPOSE 2000
+
+ENV DATABASE db
 
 CMD [ "npm", "start" ]

@@ -1,0 +1,13 @@
+version: "3.9"
+services: 
+    api:
+        build: .
+        ports: 
+            - 2000:2000
+        depends_on: 
+            - db
+    db:
+        build: ./db
+        ports: 
+            - 5432:5432
+        
