@@ -1,11 +1,26 @@
 const Pool = require('pg').Pool; // set up the configuration of your PostgreSQL connection.
+const connectionString = 'postgres://docker:password@db:5432/docker'
+// const pool = new Pool({
+//   user: 'docker',
+//   host: 'localhost',
+//   database: 'docker',
+//   password: 'password',
+//   port: 5432,
+// });
+
 const pool = new Pool({
-  user: 'POSTGRES',
-  host: 'localhost',
-  database: 'db',
-  password: 'password',
-  port: 5432,
+  connectionString,
 });
+
+let id;
+pool.query('SELECT * FROM tweet', (error, results) => {
+  if (error) {
+    throw error;
+  }
+  id = parseInt(results.rowCount); // default id
+});
+
+
 
 // query -> get all the tweets
 const getTweets = function(request, response) {
@@ -14,7 +29,7 @@ const getTweets = function(request, response) {
       throw error;
     }
     response.status(200).json(results.rows);
-  });
+  })
 };
 
 // query -> get tweet according its id
@@ -63,23 +78,114 @@ const getLikes = (request, response) => {
 
 // query -> get likes according its post_id
 const getLikesById = (request, response) => {
-  const postid = parseInt(request.params.id)
+  const postid = parseInt(request.params.id);
 
   pool.query('SELECT * FROM likes WHERE post_id = $1', [postid], (error, results) => {
     if (error) {
-      throw error
+      throw error;
     }
-    response.status(200).json(results.rows)
-  })
-}
+    response.status(200).json(results.rows);
+  });
+};
 
+// query -> post create new tweet
 const createTweet = (request, response) => {
-  const { name, email } = request.body
+  const { content, username } = request.body;
+  if (!content || !username)
+    return res
+      .status(400)
+      .json({message: 'post_id and username must be provided'});
 
-  pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email], (error, results) => {
+  pool.query('INSERT INTO tweet (id, text_content, username, timestamp, likes_count, retweets_count) VALUES ($1, $2, $3, $4, $5, $6)', [id, content, username, new Date().toISOString(), 0, 0], (error, results) => {
     if (error) {
       throw error
     }
-    response.status(201).send(`User added with ID: ${result.insertId}`)
-  })
+    response.status(201).send(`Tweet added with ID: ${id}`);
+    id += 1; // ready for next tweet
+  });
+};
+
+// query -> post create new retweet
+const createReTweet = (request, response) => {
+  const post_id = parseInt(request.params.id);
+  const { username } = request.body;
+  if (!post_id || !username)
+    return res
+      .status(400)
+      .json({message: 'post_id and username must be provided'});
+
+  pool.query('INSERT INTO ReTweet (post_id, username, timestamp) VALUES ($1, $2, $3)', [post_id, username, today.toISOString()], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(201).send(`ReTweet added of ID: ${post_id}`);
+  });
+
+  updateNumOfRetweetTweet(post_id); // update the amount of retweets of the post
+};
+
+// query -> post create new like
+const createLike = (request, response) => {
+  const post_id = parseInt(request.params.id)
+  const { username } = request.body;
+  if (!post_id || !username)
+    return res
+      .status(400)
+      .json({message: 'post_id and username must be provided'});
+
+  pool.query('INSERT INTO likes (post_id, username, timestamp) VALUES ($1, $2, $3)', [post_id, username, today.toISOString()], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(201).send(`Like added of ID: ${post_id}`);
+  });
+
+  updateNumOfLikesTweet(post_id); // update the amount of retweets of the post
+
+};
+
+// update -> increase the count_retweet by 1
+const updateNumOfRetweetTweet = (id) => {
+  pool.query('SELECT retweets_count FROM tweet WHERE id = $1', [id], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    let count_retweet = parseInt(json(results.rows));
+  });
+  pool.query(
+    'UPDATE tweet SET count_retweet = $1', [count_retweet + 1], (error, results) => {
+      if (error) {
+        throw error;
+      }
+    }
+  );
+};
+
+// update -> increase the likes_count by 1
+const updateNumOfLikesTweet = (id) => {
+  pool.query('SELECT likes_count FROM tweet WHERE id = $1', [id], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    let likes_count = parseInt(json(results.rows));
+  });
+  pool.query(
+    'UPDATE tweet SET likes_count = $1', [likes_count + 1], (error, results) => {
+      if (error) {
+        throw error;
+      }
+    }
+  );
+};
+
+module.exports = {
+  getTweets,
+  getTweetById,
+  getReTweets,
+  getReTweetById,
+  getLikes,
+  getLikesById,
+  createTweet,
+  createReTweet,
+  createLike,
 }

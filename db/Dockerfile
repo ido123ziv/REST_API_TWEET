@@ -1,10 +1,10 @@
 FROM postgres:latest
 
+
 EXPOSE 5432
 
-ENV POSTGRES_PASSWORD password 
+ENV POSTGRES_USER docker
+ENV POSTGRES_PASSWORD password
+ENV POSTGRES_db docker
 
-COPY entrypoint.sh .
-RUN pwd
-
-# ENTRYPOINT [ "./entrypoint.sh" ]
+COPY init.sql /docker-entrypoint-initdb.d/

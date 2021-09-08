@@ -12,6 +12,6 @@ COPY . /usr/src/app
 
 EXPOSE 2000
 
-ENV DATABASE db
+ENV DATABASE docker
 
 CMD [ "npm", "start" ]
