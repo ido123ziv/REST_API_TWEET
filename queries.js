@@ -114,7 +114,7 @@ const createReTweet = (request, response) => {
       .status(400)
       .json({message: 'post_id and username must be provided'});
 
-  pool.query('INSERT INTO ReTweet (post_id, username, timestamp) VALUES ($1, $2, $3)', [post_id, username, today.toISOString()], (error, results) => {
+  pool.query('INSERT INTO ReTweet (post_id, username, timestamp) VALUES ($1, $2, $3)', [post_id, username, new Date().toISOString()], (error, results) => {
     if (error) {
       throw error;
     }
@@ -133,7 +133,7 @@ const createLike = (request, response) => {
       .status(400)
       .json({message: 'post_id and username must be provided'});
 
-  pool.query('INSERT INTO likes (post_id, username, timestamp) VALUES ($1, $2, $3)', [post_id, username, today.toISOString()], (error, results) => {
+  pool.query('INSERT INTO likes (post_id, username, timestamp) VALUES ($1, $2, $3)', [post_id, username, new Date().toISOString()], (error, results) => {
     if (error) {
       throw error;
     }
@@ -146,36 +146,39 @@ const createLike = (request, response) => {
 
 // update -> increase the count_retweet by 1
 const updateNumOfRetweetTweet = (id) => {
-  pool.query('SELECT retweets_count FROM tweet WHERE id = $1', [id], (error, results) => {
+  let count_retweet;
+  pool.query('SELECT * FROM ReTweet WHERE post_id = $1', [id], (error, results) => {
     if (error) {
       throw error;
     }
-    let count_retweet = parseInt(json(results.rows));
-  });
-  pool.query(
-    'UPDATE tweet SET count_retweet = $1', [count_retweet + 1], (error, results) => {
-      if (error) {
-        throw error;
+    count_retweet = parseInt(results.rowCount);
+    pool.query(
+      'UPDATE tweet SET retweets_count = $1', [count_retweet + 1], (error, results) => {
+        if (error) {
+          throw error;
+        }
       }
-    }
-  );
+    );
+  });
 };
 
 // update -> increase the likes_count by 1
 const updateNumOfLikesTweet = (id) => {
-  pool.query('SELECT likes_count FROM tweet WHERE id = $1', [id], (error, results) => {
+  let likes_count;
+  pool.query('SELECT * FROM likes WHERE post_id = $1', [id], (error, results) => {
     if (error) {
       throw error;
     }
-    let likes_count = parseInt(json(results.rows));
-  });
-  pool.query(
-    'UPDATE tweet SET likes_count = $1', [likes_count + 1], (error, results) => {
-      if (error) {
-        throw error;
+    likes_count = parseInt(results.rowCount);
+    pool.query(
+      'UPDATE tweet SET likes_count = $1', [likes_count + 1], (error, results) => {
+        if (error) {
+          throw error;
+        }
       }
-    }
-  );
+    );
+  });
+  
 };
 
 module.exports = {
