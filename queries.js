@@ -153,7 +153,7 @@ const updateNumOfRetweetTweet = (id) => {
     }
     count_retweet = parseInt(results.rowCount);
     pool.query(
-      'UPDATE tweet SET retweets_count = $1', [count_retweet + 1], (error, results) => {
+      'UPDATE tweet SET retweets_count = $1 WHERE id = $2', [count_retweet + 1, id], (error, results) => {
         if (error) {
           throw error;
         }
@@ -171,7 +171,7 @@ const updateNumOfLikesTweet = (id) => {
     }
     likes_count = parseInt(results.rowCount);
     pool.query(
-      'UPDATE tweet SET likes_count = $1', [likes_count + 1], (error, results) => {
+      'UPDATE tweet SET likes_count = $1 WHERE id = $2', [likes_count + 1, id], (error, results) => {
         if (error) {
           throw error;
         }
