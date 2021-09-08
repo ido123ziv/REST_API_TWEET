@@ -1,13 +1,11 @@
 // import the express module and create an application
 const express = require('express'); 
-const db = require('postgres'); 
-
+const bodyParser = require('body-parser')
 const app = express();
-let tweetsRepo = require('./repos/tweetsRepo');
-
-// use the express Router object
-let router = express.Router();
+const db = require('./queries')
 const port = 2000;
+
+//let tweetsRepo = require('./repos/tweetsRepo');
 
 // create server to listen on port
 var server = app.listen(port, () => { 
@@ -18,7 +16,16 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-// Create Get to return all tweets
+
+
+app.get('/tweets', (req, res) => db.getTweets); // Create Get to return all tweets
+/*
+app.get('/tweets/:id', db.getTweetById); // Create Get/id to return a single tweet
+app.get('/retweets', db.getReTweets); // Create Get to return all retweets
+app.get('/retweets/:id', db.getReTweetById); // Create Get/id to return a single retweets
+app.get('/likes', db.getLikes); // Create Get to return all likes
+app.get('/retweets/:id', db.getLikesById); // Create Get/id to return a single like
+
 app.get('/tweets', function (req, res, next){ 
     tweetsRepo.get(function (data) {
         res.status(200).json({ // resolve
@@ -31,6 +38,7 @@ app.get('/tweets', function (req, res, next){
     });
 });
 
+/*
 // Create Get/id to return a single tweet
 app.get('/tweets/:id', function(req, res, next) {
     tweetsRepo.getById(req.params.id, function (data) {
@@ -58,7 +66,7 @@ app.get('/tweets/:id', function(req, res, next) {
 
 
 
-
+*/
 app.post('/tweets', function(req, res){
     var body = req.body;
     console.log(req.body.content);
