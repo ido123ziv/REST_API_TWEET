@@ -19,5 +19,5 @@ docker-compose up
 
 And to query the server use:
 ```
-curl -i http://localhost/getTweets
+curl -i http://localhost:2000/getTweets
 ```
