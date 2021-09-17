@@ -7,7 +7,7 @@ services:
         depends_on: 
             - db
         environment:
-            DATABASE_URL: postgres://docker:password@db:5432/docker
+            DATABASE_URL: postgres://docker:${DB_PASSWORD}@db:5432/docker
     db:
         build: .\db
         ports: 
